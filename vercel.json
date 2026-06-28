@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/danielysofia",
+      "destination": "/clientes/danielysofia/index.html"
+    },
+    {
+      "source": "/danielysofia/:path*",
+      "destination": "/clientes/danielysofia/:path*"
+    }
+  ]
+}
