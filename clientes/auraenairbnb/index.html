@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura — Fotografía para Airbnb</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root { --beige: #f5f1eb; --dark: #1f1f1f; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--dark); }
+    .font-serif { font-family: 'Playfair Display', serif; }
+    .btn-wa { background: #25D366; color: #fff; }
+    .btn-wa:hover { background: #1ebe5d; }
+    .btn-outline { border: 1.5px solid var(--dark); }
+    .btn-outline:hover { background: var(--dark); color: #fff; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .faq-item.open .faq-answer { max-height: 400px; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-chevron { transition: transform 0.3s ease; }
+
+    /* Carousel */
+    .carousel-wrapper { width: 100%; overflow: hidden; }
+    .carousel-container { display: flex; overflow-x: auto; scroll-behavior: smooth; gap: 24px; padding: 0; scroll-snap-type: x mandatory; }
+    .carousel-container::-webkit-scrollbar { height: 6px; }
+    .carousel-container::-webkit-scrollbar-track { background: #f5f1eb; border-radius: 10px; }
+    .carousel-container::-webkit-scrollbar-thumb { background: #d0c4b4; border-radius: 10px; }
+    .carousel-slide { flex: 0 0 calc(100% - 24px); min-width: calc(100% - 24px); scroll-snap-align: start; }
+    @media (min-width: 640px) { .carousel-slide { flex: 0 0 calc(50% - 12px); min-width: calc(50% - 12px); } }
+    @media (min-width: 1024px) { .carousel-slide { flex: 0 0 calc(33.333% - 16px); min-width: calc(33.333% - 16px); } }
+
+    .carousel-card { background: #fff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; border: 1px solid #f0ebe3; }
+    .carousel-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.12); transform: translateY(-4px); }
+    .carousel-image-wrapper { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; background: linear-gradient(135deg, #f9f7f4 0%, #f5f1eb 100%); }
+    .carousel-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .carousel-card:hover .carousel-image { transform: scale(1.05); }
+
+    .carousel-check { position: absolute; bottom: 12px; right: 12px; width: 44px; height: 44px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); opacity: 0; }
+    .carousel-check.animate-pop { animation: checkPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+    @keyframes checkPop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 50% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
+    .carousel-content { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+    .carousel-badge { display: inline-block; width: fit-content; font-size: 12px; font-weight: 600; color: #25D366; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .carousel-title { font-size: 18px; font-weight: 600; color: #1f1f1f; margin-bottom: 8px; }
+    .carousel-description { font-size: 14px; color: #6b6b6b; line-height: 1.5; opacity: 0.85; }
+
+    .carousel-controls { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    .carousel-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #f5f1eb; color: #1f1f1f; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 18px; }
+    .carousel-btn:hover { background: #1f1f1f; color: #fff; transform: scale(1.1); }
+    .carousel-btn:active { transform: scale(0.95); }
+
+    /* Hero height */
+    .hero-section { min-height: 90vh; }
+  </style>
+</head>
+<body class="w-full" style="background:#fff;">
+
+  <!-- WhatsApp flotante -->
+  <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+     target="_blank" rel="noopener noreferrer"
+     class="fixed bottom-6 right-6 z-50 btn-wa w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+     aria-label="WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <!-- ============================================================
+    HERO
+    Reemplazá el background-image por tu foto real
+    ============================================================ -->
+  <header class="relative w-full hero-section">
+    <!-- FOTO DE FONDO: reemplazá la URL por tu imagen real -->
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image: url('fotos/hero.jpg'); background-color: #2a2a2a;">
+    </div>
+    <div class="absolute inset-0 bg-black/30"></div>
+    <div class="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32 hero-section">
+      <h1 class="font-serif text-white max-w-3xl" style="font-size:clamp(2rem,6vw,3rem); font-weight:700;">
+        Fotografías funcionales para Airbnb y hospedajes
+      </h1>
+      <p class="text-white/90 max-w-2xl mt-6" style="font-size:1.1rem; line-height:1.7;">
+        Imágenes profesionales diseñadas para mejorar la presentación, experiencia visual y percepción de valor de tu propiedad.
+      </p>
+      <div class="flex flex-wrap gap-4 mt-10 justify-center">
+        <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+           target="_blank" rel="noopener noreferrer"
+           class="btn-wa px-8 py-3.5 rounded-full font-semibold transition" style="font-size:1.05rem;">
+          Cotizar por WhatsApp
+        </a>
+        <a href="#portafolio"
+           class="px-8 py-3.5 rounded-full font-semibold transition"
+           style="background:#fff; color:#1f1f1f; font-size:1.05rem;">
+          Ver portafolio
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+    CAROUSEL — ACCESIBILIDAD
+    Reemplazá las imágenes en la carpeta fotos/
+    ============================================================ -->
+  <section class="py-32 px-6" style="background:#fff;">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="font-serif text-4xl mb-4" style="font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700;">
+          Fotografías funcionales para prestaciones de accesibilidad
+        </h2>
+        <p class="text-lg max-w-2xl mx-auto" style="color:#6b6b6b; line-height:1.6;">
+          Imágenes diseñadas para documentar y comunicar características importantes del hospedaje dentro de Airbnb.
+        </p>
+      </div>
+      <div class="carousel-wrapper">
+        <div class="carousel-container" id="carousel">
+
+          <div class="carousel-slide">
+            <div class="carousel-card">
+              <div class="carousel-image-wrapper">
+                <!-- FOTO CAROUSEL 1: reemplazá por fotos/accesibilidad-1.jpg -->
+                <img src="fotos/accesibilidad-1.jpg" alt="Entrada accesible" class="carousel-image" loading="lazy"
+                     onerror="this.parentElement.style.background='linear-gradient(135deg,#f5f1eb,#e8e0d4)'"/>
+                <div class="carousel-check">✓</div>
+              </div>
+              <div class="carousel-content">
+                <span class="carousel-badge">✔️ Verificada</span>
+                <h3 class="carousel-title">Entrada accesible</h3>
+                <p class="carousel-description">Documentación clara de acceso sin escalones.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-card">
+              <div class="carousel-image-wrapper">
+                <!-- FOTO CAROUSEL 2 -->
+                <img src="fotos/accesibilidad-2.jpg" alt="Camino iluminado" class="carousel-image" loading="lazy"
+                     onerror="this.parentElement.style.background='linear-gradient(135deg,#f5f1eb,#e8e0d4)'"/>
+                <div class="carousel-check">✓</div>
+              </div>
+              <div class="carousel-content">
+                <span class="carousel-badge">✔️ Verificada</span>
+                <h3 class="carousel-title">Camino iluminado</h3>
+                <p class="carousel-description">Fotografía funcional de circulación segura.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-card">
+              <div class="carousel-image-wrapper">
+                <!-- FOTO CAROUSEL 3 -->
+                <img src="fotos/accesibilidad-3.jpg" alt="Baño accesible" class="carousel-image" loading="lazy"
+                     onerror="this.parentElement.style.background='linear-gradient(135deg,#f5f1eb,#e8e0d4)'"/>
+                <div class="carousel-check">✓</div>
+              </div>
+              <div class="carousel-content">
+                <span class="carousel-badge">✔️ Verificada</span>
+                <h3 class="carousel-title">Baño accesible</h3>
+                <p class="carousel-description">Espacios alineados con requisitos de Airbnb.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-card">
+              <div class="carousel-image-wrapper">
+                <!-- FOTO CAROUSEL 4 -->
+                <img src="fotos/accesibilidad-4.jpg" alt="Parqueo accesible" class="carousel-image" loading="lazy"
+                     onerror="this.parentElement.style.background='linear-gradient(135deg,#f5f1eb,#e8e0d4)'"/>
+                <div class="carousel-check">✓</div>
+              </div>
+              <div class="carousel-content">
+                <span class="carousel-badge">✔️ Verificada</span>
+                <h3 class="carousel-title">Parqueo accesible</h3>
+                <p class="carousel-description">Verificación de prestaciones para hospedajes.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-slide">
+            <div class="carousel-card">
+              <div class="carousel-image-wrapper">
+                <!-- FOTO CAROUSEL 5 -->
+                <img src="fotos/accesibilidad-5.jpg" alt="Señalización clara" class="carousel-image" loading="lazy"
+                     onerror="this.parentElement.style.background='linear-gradient(135deg,#f5f1eb,#e8e0d4)'"/>
+                <div class="carousel-check">✓</div>
+              </div>
+              <div class="carousel-content">
+                <span class="carousel-badge">✔️ Verificada</span>
+                <h3 class="carousel-title">Señalización clara</h3>
+                <p class="carousel-description">Documentación visual de conformidad Airbnb.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <button type="button" class="carousel-btn" id="carousel-prev" aria-label="Anterior">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <button type="button" class="carousel-btn" id="carousel-next" aria-label="Siguiente">
+          <i data-lucide="chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section class="py-24 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="font-serif" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">
+        Tu propiedad puede ser increíble… y aun así no destacar
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl mx-auto opacity-80">
+        En plataformas como Airbnb, las fotografías son la primera impresión del hospedaje. Muchas propiedades pierden reservas por imágenes oscuras, fotos desactualizadas o mala presentación visual.
+      </p>
+    </div>
+    <div class="max-w-5xl mx-auto mt-16 grid md:grid-cols-2 gap-6">
+      <!-- FOTO ANTES: reemplazá -->
+      <div class="relative rounded-2xl overflow-hidden">
+        <img src="fotos/antes.jpg" alt="Antes" class="w-full h-72 object-cover"
+             onerror="this.style.background='#ccc';this.style.height='18rem'"/>
+        <span class="absolute top-4 left-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full">Antes</span>
+      </div>
+      <!-- FOTO DESPUÉS: reemplazá -->
+      <div class="relative rounded-2xl overflow-hidden">
+        <img src="fotos/despues.jpg" alt="Después" class="w-full h-72 object-cover"
+             onerror="this.style.background='#aaa';this.style.height='18rem'"/>
+        <span class="absolute top-4 left-4 bg-white/90 text-gray-800 text-xs px-3 py-1 rounded-full">Después</span>
+      </div>
+    </div>
+    <div class="text-center mt-12">
+      <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+         target="_blank" rel="noopener noreferrer"
+         class="btn-wa px-8 py-3.5 rounded-full font-semibold inline-block transition">
+        Actualizar fotos de mi Airbnb
+      </a>
+    </div>
+  </section>
+
+  <!-- DIFERENCIADOR -->
+  <section class="py-24 px-6" style="background:#f5f1eb;">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">Más que fotos bonitas</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+        <div class="p-8 rounded-2xl bg-white shadow-sm">
+          <i data-lucide="aperture" class="w-8 h-8 mb-4"></i>
+          <h3 class="font-semibold text-lg">Fotografía HDR profesional</h3>
+          <p class="mt-2 opacity-70 text-sm">Capturamos cada detalle con técnica HDR para máxima calidad visual.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-white shadow-sm">
+          <i data-lucide="maximize" class="w-8 h-8 mb-4"></i>
+          <h3 class="font-semibold text-lg">Fotografía funcional del espacio</h3>
+          <p class="mt-2 opacity-70 text-sm">Mostramos el espacio de forma clara y atractiva para los huéspedes.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-white shadow-sm">
+          <i data-lucide="accessibility" class="w-8 h-8 mb-4"></i>
+          <h3 class="font-semibold text-lg">Enfoque en accesibilidad Airbnb</h3>
+          <p class="mt-2 opacity-70 text-sm">Imágenes alineadas con los estándares de presentación de Airbnb.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-white shadow-sm">
+          <i data-lucide="refresh-cw" class="w-8 h-8 mb-4"></i>
+          <h3 class="font-semibold text-lg">Actualización visual del hospedaje</h3>
+          <p class="mt-2 opacity-70 text-sm">Renueva la imagen de tu propiedad sin grandes inversiones.</p>
+        </div>
+        <div class="p-8 rounded-2xl bg-white shadow-sm">
+          <i data-lucide="share-2" class="w-8 h-8 mb-4"></i>
+          <h3 class="font-semibold text-lg">Contenido para redes sociales</h3>
+          <p class="mt-2 opacity-70 text-sm">Material listo para compartir en Instagram y otras plataformas.</p>
+        </div>
+      </div>
+      <div class="text-center mt-14">
+        <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+           target="_blank" rel="noopener noreferrer"
+           class="bg-gray-900 text-white px-8 py-3.5 rounded-full font-semibold inline-block hover:bg-gray-700 transition">
+          Quiero cotizar
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">¿Por qué es una inversión?</h2>
+      <div class="grid md:grid-cols-2 gap-12 mt-16 items-center">
+        <div class="space-y-6">
+          <div class="flex items-start gap-4"><i data-lucide="check-circle" class="w-5 h-5 mt-1 text-green-500 flex-shrink-0"></i><p>Mejora la percepción del hospedaje</p></div>
+          <div class="flex items-start gap-4"><i data-lucide="check-circle" class="w-5 h-5 mt-1 text-green-500 flex-shrink-0"></i><p>Ayuda a destacar frente a otras propiedades</p></div>
+          <div class="flex items-start gap-4"><i data-lucide="check-circle" class="w-5 h-5 mt-1 text-green-500 flex-shrink-0"></i><p>Comunica mejor el valor del espacio</p></div>
+          <div class="flex items-start gap-4"><i data-lucide="check-circle" class="w-5 h-5 mt-1 text-green-500 flex-shrink-0"></i><p>Actualiza la imagen del hospedaje</p></div>
+          <div class="flex items-start gap-4"><i data-lucide="check-circle" class="w-5 h-5 mt-1 text-green-500 flex-shrink-0"></i><p>Genera más confianza en huéspedes</p></div>
+        </div>
+        <div class="space-y-4">
+          <!-- FOTOS BENEFICIOS: reemplazá -->
+          <img src="fotos/beneficio-1.jpg" alt="Hospedaje" class="w-full h-56 object-cover rounded-2xl"
+               onerror="this.style.background='#e0dbd2';this.style.display='block'"/>
+          <img src="fotos/beneficio-2.jpg" alt="Hospedaje" class="w-full h-56 object-cover rounded-2xl"
+               onerror="this.style.background='#d5cfc6';this.style.display='block'"/>
+        </div>
+      </div>
+      <div class="text-center mt-14">
+        <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+           target="_blank" rel="noopener noreferrer"
+           class="btn-wa px-8 py-3.5 rounded-full font-semibold inline-block transition">
+          Hablar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANTES / DESPUÉS -->
+  <section class="py-24 px-6" id="portafolio" style="background:#f5f1eb;">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">La diferencia está en los detalles</h2>
+      <div class="grid md:grid-cols-2 gap-6 mt-16">
+        <div class="relative rounded-2xl overflow-hidden">
+          <img src="fotos/ba-1-antes.jpg" alt="Foto normal" class="w-full h-64 object-cover"
+               onerror="this.style.background='#bbb';this.style.height='16rem'"/>
+          <span class="absolute bottom-4 left-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full">Foto normal</span>
+        </div>
+        <div class="relative rounded-2xl overflow-hidden">
+          <img src="fotos/ba-1-despues.jpg" alt="HDR profesional" class="w-full h-64 object-cover"
+               onerror="this.style.background='#999';this.style.height='16rem'"/>
+          <span class="absolute bottom-4 left-4 bg-white/90 text-gray-800 text-xs px-3 py-1 rounded-full">HDR profesional</span>
+        </div>
+        <div class="relative rounded-2xl overflow-hidden">
+          <img src="fotos/ba-2-antes.jpg" alt="Antes" class="w-full h-64 object-cover"
+               onerror="this.style.background='#bbb';this.style.height='16rem'"/>
+          <span class="absolute bottom-4 left-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full">Antes</span>
+        </div>
+        <div class="relative rounded-2xl overflow-hidden">
+          <img src="fotos/ba-2-despues.jpg" alt="Después" class="w-full h-64 object-cover"
+               onerror="this.style.background='#999';this.style.height='16rem'"/>
+          <span class="absolute bottom-4 left-4 bg-white/90 text-gray-800 text-xs px-3 py-1 rounded-full">Después</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASO DE ESTUDIO -->
+  <section class="py-32 px-6" style="background:#fafaf8;">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="font-serif text-center mb-20" style="font-size:clamp(1.4rem,3.5vw,1.8rem); font-weight:600;">
+        Algunos espacios que ya confiaron en Aura
+      </h2>
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <img src="fotos/caso-estudio.jpg" alt="Apartamento San José" class="w-full h-96 object-cover rounded-3xl shadow-lg"
+               onerror="this.style.background='#d5cfc6';this.style.height='24rem'"/>
+        </div>
+        <div class="space-y-8">
+          <div>
+            <h3 class="font-serif text-2xl mb-4" style="font-weight:600;">Apartamento moderno en San José</h3>
+            <p class="text-base leading-relaxed opacity-85">
+              Fotografía funcional y HDR enfocada en mostrar iluminación natural, amenidades y experiencia real del hospedaje dentro de Airbnb.
+            </p>
+          </div>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografías interiores y exteriores</span></li>
+            <li class="flex items-start gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i><span>Amenidades y áreas comunes</span></li>
+            <li class="flex items-start gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotos de día y noche</span></li>
+            <li class="flex items-start gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i><span>Optimización visual para Airbnb</span></li>
+          </ul>
+          <div class="flex flex-col sm:flex-row gap-4 pt-8">
+            <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+               target="_blank" rel="noopener noreferrer"
+               class="btn-wa px-6 py-3.5 rounded-full font-semibold text-center transition inline-block">
+              💬 Consultar sesión
+            </a>
+            <a href="https://www.airbnb.co.cr/rooms/19213537"
+               target="_blank" rel="noopener noreferrer"
+               class="border-2 border-gray-900 text-gray-900 px-6 py-3.5 rounded-full font-semibold text-center transition inline-block hover:bg-gray-900 hover:text-white">
+              🏡 Ver hospedaje en Airbnb
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section class="py-24 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">¿Cómo funciona?</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-full bg-[#f5f1eb] flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+          </div>
+          <p class="font-semibold">Coordinamos</p>
+        </div>
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-full bg-[#f5f1eb] flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="clipboard" class="w-6 h-6"></i>
+          </div>
+          <p class="font-semibold">Planificamos</p>
+        </div>
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-full bg-[#f5f1eb] flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="camera" class="w-6 h-6"></i>
+          </div>
+          <p class="font-semibold">Realizamos la sesión</p>
+        </div>
+        <div class="text-center">
+          <div class="w-14 h-14 rounded-full bg-[#f5f1eb] flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="send" class="w-6 h-6"></i>
+          </div>
+          <p class="font-semibold">Entregamos</p>
+        </div>
+      </div>
+      <div class="text-center mt-14">
+        <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+           target="_blank" rel="noopener noreferrer"
+           class="bg-gray-900 text-white px-8 py-3.5 rounded-full font-semibold inline-block hover:bg-gray-700 transition">
+          Reservar sesión
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAQUETES -->
+  <section class="py-24 px-6" style="background:#f5f1eb;">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-4">
+        <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">Paquetes</h2>
+        <p class="mt-3 max-w-2xl mx-auto" style="font-style:italic; font-size:0.9rem; opacity:0.7;">
+          Cada sesión está diseñada para mostrar la experiencia real del hospedaje y mejorar su presentación visual dentro de plataformas como Airbnb.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8 mt-16">
+        <!-- Pack 1 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm flex flex-col h-full">
+          <h3 class="font-serif text-xl font-semibold">Esencial</h3>
+          <p class="text-2xl font-bold mt-2">Desde ₡95.000</p>
+          <ul class="mt-6 space-y-3 flex-1 text-sm opacity-80">
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>10 fotos HDR editadas</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografía interior y exterior</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Entrega digital en 48 horas</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Ideal para espacios pequeños</span></li>
+          </ul>
+          <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+             target="_blank" rel="noopener noreferrer"
+             class="btn-wa mt-8 text-center py-3 rounded-full font-semibold block transition">
+            Cotizar por WhatsApp
+          </a>
+        </div>
+        <!-- Pack 2 -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm flex flex-col h-full">
+          <h3 class="font-serif text-xl font-semibold">Airbnb Plus</h3>
+          <p class="text-2xl font-bold mt-2">Desde ₡190.000</p>
+          <ul class="mt-6 space-y-3 flex-1 text-sm opacity-80">
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Hasta 60 fotografías editadas</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografías HDR profesionales</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Interiores, exteriores, día y noche</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografías de amenidades</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Contenido visual optimizado para Airbnb</span></li>
+          </ul>
+          <p class="text-xs mt-4 pt-4 border-t border-gray-100" style="font-style:italic;">
+            Puede requerir coordinación de estadía para capturar experiencia nocturna y matutina.
+          </p>
+          <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+             target="_blank" rel="noopener noreferrer"
+             class="btn-wa mt-8 text-center py-3 rounded-full font-semibold block transition">
+            Cotizar por WhatsApp
+          </a>
+        </div>
+        <!-- Pack 3 -->
+        <div class="rounded-2xl p-8 shadow-md flex flex-col h-full border border-[#e8e3d8]" style="background:linear-gradient(to bottom,#faf8f5,#f5f1eb);">
+          <span class="text-xs font-semibold tracking-widest uppercase mb-3">👑 Premium</span>
+          <h3 class="font-serif text-xl font-semibold">Premium Experience</h3>
+          <p class="text-2xl font-bold mt-2">Desde ₡250.000</p>
+          <ul class="mt-6 space-y-3 flex-1 text-sm opacity-85">
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Más de 70 fotografías editadas</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Documentación completa del hospedaje</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografías funcionales y HDR</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Fotografías de accesibilidad Airbnb</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Acompañamiento para carga en Airbnb</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Revisión del checklist de accesibilidad</span></li>
+            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5"></i><span>Asesoría visual para optimizar el hospedaje</span></li>
+          </ul>
+          <p class="text-xs mt-4 pt-4 border-t border-[#e8e3d8]" style="font-style:italic;">
+            Incluye acompañamiento para verificar presentación visual y requisitos de accesibilidad en Airbnb.
+          </p>
+          <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+             target="_blank" rel="noopener noreferrer"
+             class="btn-wa mt-8 text-center py-3 rounded-full font-semibold block transition">
+            Cotizar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-serif text-center" style="font-size:clamp(1.4rem,3.5vw,1.7rem); font-weight:600;">Preguntas frecuentes</h2>
+      <div class="mt-14 space-y-4" id="faq-list">
+        <div class="faq-item border-b border-gray-200 pb-4 cursor-pointer">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">¿Cuánto dura la sesión?</p>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="mt-3 opacity-70 text-sm leading-relaxed">La duración depende del tamaño del hospedaje y tipo de experiencia. En los paquetes Airbnb Plus y Premium se requiere coordinación de estadía de una noche para capturar iluminación natural, ambiente al atardecer, fotografía nocturna, amanecer y amenidades en diferentes momentos del día.</p>
+          </div>
+        </div>
+        <div class="faq-item border-b border-gray-200 pb-4 cursor-pointer">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">¿Se toman fotos de amenidades?</p>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="mt-3 opacity-70 text-sm">Sí, en los paquetes Airbnb Plus y Premium fotografiamos piscina, jardín, áreas comunes y todos los detalles relevantes tanto de día como de noche.</p>
+          </div>
+        </div>
+        <div class="faq-item border-b border-gray-200 pb-4 cursor-pointer">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">¿También realizan videos?</p>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="mt-3 opacity-70 text-sm">Sí, el paquete Premium incluye un video corto optimizado para redes sociales. También ofrecemos video como servicio adicional.</p>
+          </div>
+        </div>
+        <div class="faq-item border-b border-gray-200 pb-4 cursor-pointer">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">¿Trabajan fuera del GAM?</p>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="mt-3 opacity-70 text-sm">Sí, cubrimos todo Costa Rica. Para destinos fuera del GAM aplicamos un costo adicional de desplazamiento.</p>
+          </div>
+        </div>
+        <div class="faq-item border-b border-gray-200 pb-4 cursor-pointer">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">¿Entregan fotos editadas?</p>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="mt-3 opacity-70 text-sm">Todas las fotos pasan por edición profesional con corrección de color, balance de luz y retoque. Se entregan máximo 7 días después de la sesión.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="relative w-full py-32 px-6">
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image: url('fotos/cta-fondo.jpg'); background-color: #2a2a2a;">
+    </div>
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="relative z-10 text-center max-w-3xl mx-auto">
+      <h2 class="font-serif text-white" style="font-size:clamp(1.6rem,4vw,2.2rem); font-weight:700;">
+        Tu hospedaje merece imágenes que transmitan la experiencia real del espacio
+      </h2>
+      <a href="https://wa.me/50687037656?text=Hola%20Majo,%20quiero%20cotizar%20fotograf%C3%ADa%20para%20mi%20Airbnb"
+         target="_blank" rel="noopener noreferrer"
+         class="btn-wa px-10 py-4 rounded-full font-semibold inline-block mt-10 text-lg transition">
+        Agendar sesión
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 px-6" style="background:#1f1f1f;">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm opacity-70">
+      <p class="font-serif text-lg text-white font-semibold">Aura</p>
+      <div class="flex gap-6 items-center text-white">
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <i data-lucide="instagram" class="w-5 h-5"></i>
+        </a>
+        <a href="https://wa.me/50687037656" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </a>
+        <a href="mailto:hola@aura.cr" aria-label="Email">
+          <i data-lucide="mail" class="w-5 h-5"></i>
+        </a>
+      </div>
+      <p class="text-white">Costa Rica</p>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // FAQ
+    document.getElementById('faq-list').addEventListener('click', (e) => {
+      const item = e.target.closest('.faq-item');
+      if (item) item.classList.toggle('open');
+    });
+
+    // Carousel
+    const carousel = document.getElementById('carousel');
+    const prevBtn  = document.getElementById('carousel-prev');
+    const nextBtn  = document.getElementById('carousel-next');
+    const scrollAmount = 400;
+    let autoScrollInterval;
+    let isUserInteracting = false;
+
+    function autoScrollCarousel() {
+      if (!isUserInteracting) carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+    function startAutoScroll() { autoScrollInterval = setInterval(autoScrollCarousel, 4000); }
+    function stopAutoScroll()  { clearInterval(autoScrollInterval); }
+    function scheduleResume()  {
+      stopAutoScroll(); isUserInteracting = true;
+      setTimeout(() => { isUserInteracting = false; startAutoScroll(); }, 3000);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const badge = entry.target.querySelector('.carousel-check');
+          if (badge) { badge.classList.remove('animate-pop'); void badge.offsetWidth; badge.classList.add('animate-pop'); }
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.carousel-slide').forEach(s => observer.observe(s));
+
+    prevBtn.addEventListener('click', () => { carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); scheduleResume(); });
+    nextBtn.addEventListener('click', () => { carousel.scrollBy({ left:  scrollAmount, behavior: 'smooth' }); scheduleResume(); });
+    carousel.addEventListener('mouseenter', stopAutoScroll);
+    carousel.addEventListener('mouseleave', () => { isUserInteracting = false; startAutoScroll(); });
+    startAutoScroll();
+  </script>
+</body>
+</html>
