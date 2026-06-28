@@ -7,6 +7,14 @@
     {
       "source": "/danielysofia/:path*",
       "destination": "/clientes/danielysofia/:path*"
+    },
+    {
+      "source": "/auraenairbnb",
+      "destination": "/clientes/auraenairbnb/index.html"
+    },
+    {
+      "source": "/auraenairbnb/:path*",
+      "destination": "/clientes/auraenairbnb/:path*"
     }
   ]
 }
